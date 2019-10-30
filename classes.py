@@ -1,4 +1,7 @@
 import re
+from tinydb import TinyDB, Query
+
+
 def printHelp():
     helpString = '''
 Help :
@@ -66,13 +69,6 @@ class UserInputHandler():
         line = inp.strip()
         return line #string
    
-   
-   
-   
-   
-   
-   
-    
     def processCommand(self,line):
         line += " ;"
         _1stArg , restArg = line.split(" ",1)
@@ -119,7 +115,8 @@ class UserInputHandler():
                     print("Error: Invalid Arguments! - > ")
                     return data
                 else:
-                    data['rest'] = restArg.strip().split()
+                    temp = restArg.strip().split()
+                    data['rest'] = temp[:len(temp)-1]
             # match for machinery
             else:
                 p = re.compile(self.__validateRegex['mc_add'])
@@ -127,7 +124,8 @@ class UserInputHandler():
                     print("Error: Invalid Arguments! - > ")
                     return data
                 else:
-                    data['rest'] = restArg.strip().split()
+                    temp = restArg.strip().split()
+                    data['rest'] = temp[:len(temp)-1]
 
 
 
@@ -141,7 +139,8 @@ class UserInputHandler():
                     print("Error: Invalid Arguments! - > ")
                     return data
                 else:
-                    data['rest'] = restArg.strip().split(" ",2)
+                    temp = restArg.strip().split()
+                    data['rest'] = temp[:len(temp)-1]
             # match for machinery
             else:
                 p = re.compile(self.__validateRegex['mc_update'])
@@ -149,7 +148,8 @@ class UserInputHandler():
                     print("Error: Invalid Arguments! - > ")
                     return data
                 else:
-                    data['rest'] = restArg.strip().split()
+                    temp = restArg.strip().split()
+                    data['rest'] = temp[:len(temp)-1]
 
             
             pass
@@ -162,14 +162,16 @@ class UserInputHandler():
                     print("Error: Invalid Arguments! - > ")
                     return data
                 else:
-                    data['rest'] = restArg.strip().split()
+                    temp = restArg.strip().split()
+                    data['rest'] = temp[:len(temp)-1]
             else:
                 p = re.compile(self.__validateRegex['mc_del'])
                 if p.match(restArg) == None:
                     print("Error: Invalid Arguments! - > ")
                     return data
                 else:
-                    data['rest'] = restArg.strip().split()
+                    temp = restArg.strip().split()
+                    data['rest'] = temp[:len(temp)-1]
 
                 pass
         # For show
@@ -180,7 +182,8 @@ class UserInputHandler():
                 print("Error: Invalid Arguments! - > ")
                 return data
             else:
-                data['rest'] = restArg.strip().split()
+                temp = restArg.strip().split()
+                    data['rest'] = temp[:len(temp)-1]
         
         return data 
 
@@ -200,12 +203,12 @@ class Simulate():
 
 class FileHandler():
     # Private variables
-    # TODO:
-    __machineryFilePath = ""
-    # TODO:
-    __adjusterFilePath = ""
-    # TODO:
-    __utilizationFilePath =""
+    
+    __machineryFilePath = "./data/machinery.json"
+    
+    __adjusterFilePath = "./data/adjuster.json"
+    
+    __utilizationFilePath ="./data/simulationResult.json"
     # TODO:
     def __init__(self, *args, **kwargs):
         pass
@@ -213,10 +216,15 @@ class FileHandler():
     def readFromFile(self, name):
         data = ""
         return data # string
-    # TODO:
+    
     def writeToFile(self,name,data):
-        success = ""
+        url = None
+        if name == "adjuster":
+            url = self.__adjusterFilePath
+        db = TinyDB(url)
+        success = d.insert(data)
         return success #int
+    
     # TODO:
     def deleteAll(self):
         pass
@@ -252,7 +260,7 @@ class AddHandler():
         pass
     # TODO:
     def addAdjuster(self,expertise):
-        _id =""
+        _id = FileHandler.writeToFile("adjuster",dict(expertise))
         return _id # id
     
 

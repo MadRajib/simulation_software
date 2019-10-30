@@ -40,7 +40,7 @@ Help :
 
 
 class UserInputHandler():
-    # TODO:
+   
     def __init__(self, *args, **kwargs):
         self.__validCommands = ("help",
                                  "add",
@@ -55,10 +55,11 @@ class UserInputHandler():
         self.__validateRegex = {
             "mc_add" : "\s*\w+\s*[ ]\s*\d+\s*[ ]\s*\d+(\.\d+)?\s*",
             "ad_add" : "\s*\w+[ ]\s*",
-            "mc_update":"",
-            "ad_update":"",
+            "mc_update":"\s*\w+\s*[ ]\s*\w+\s*[ ]\s*\d+\s*[ ]\s*\d+(\.\d+)?\s*",
+            "ad_update":"\s*\d+\s+(remove|add)\s(\s*\w+\s*)*",
             "ad_del":"\s*\d+\s*",
             "mc_del":"\s*\w+\s*",
+            "show_result":"\s*\d+\s*"
         }
     def getUserInput(self,):
         inp = input("Please Enter Commands\n")
@@ -71,7 +72,7 @@ class UserInputHandler():
    
    
    
-    # TODO:
+    
     def processCommand(self,line):
         line += " ;"
         _1stArg , restArg = line.split(" ",1)
@@ -133,6 +134,23 @@ class UserInputHandler():
         # For Update
         #------------------------------------------------------------------------------
         elif data["command"] == "update":
+             # Match for adjuster
+            if data["option"] =="ad":
+                p = re.compile(self.__validateRegex['ad_update'])
+                if p.match(restArg) == None:
+                    print("Error: Invalid Arguments! - > ")
+                    return data
+                else:
+                    data['rest'] = restArg.strip().split(" ",2)
+            # match for machinery
+            else:
+                p = re.compile(self.__validateRegex['mc_update'])
+                if p.match(restArg) == None:
+                    print("Error: Invalid Arguments! - > ")
+                    return data
+                else:
+                    data['rest'] = restArg.strip().split()
+
             
             pass
         # For delete
@@ -157,9 +175,13 @@ class UserInputHandler():
         # For show
         # ----------------------------------------------------------------------------------------------- 
         elif data["command"] =="show":
-            pass
+            p = re.compile(self.__validateRegex['show_result'])
+            if p.match(restArg) == None:
+                print("Error: Invalid Arguments! - > ")
+                return data
+            else:
+                data['rest'] = restArg.strip().split()
         
-        print(data)
         return data 
 
 

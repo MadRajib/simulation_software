@@ -183,7 +183,7 @@ class UserInputHandler():
                 return data
             else:
                 temp = restArg.strip().split()
-                    data['rest'] = temp[:len(temp)-1]
+                data['rest'] = temp[:len(temp)-1]
         
         return data 
 
@@ -198,6 +198,46 @@ class Simulate():
         return data #float list
     # TODO:
     def save(self):
+        pass
+
+
+
+
+
+
+class AddHandler():
+    # TODO:
+    def __init__(self, *args, **kwargs):
+        pass
+    # TODO:
+    def addCatgeory(self,name,quantity,MTTF):
+        pass
+    # TODO:
+    def addAdjuster(self,expertise):
+        data = {
+            "id":"",
+            "expertise":expertise
+        }
+        _id = FileHandler().writeToFile("adjuster",data)
+        return _id # id
+    
+
+class EditHandler():
+    # TODO:
+    def __init__(self, *args, **kwargs):
+        pass
+    # TODO:
+    def updateCategory(self,qunatity,MTTF):
+        pass
+    # TODO:
+    def updateAdjuster(self,option,expertise):
+        pass
+    # TODO:
+    def deleteCategory(self,name):
+        pass
+
+    # TODO:
+    def deleteAdjuster(self,id):
         pass
 
 
@@ -222,7 +262,7 @@ class FileHandler():
         if name == "adjuster":
             url = self.__adjusterFilePath
         db = TinyDB(url)
-        success = d.insert(data)
+        success = db.insert(data)
         return success #int
     
     # TODO:
@@ -248,36 +288,3 @@ class FileHandler():
     def updateUtilization(self,option,list):
         success= ""
         return success  #int
-
-
-
-class AddHandler():
-    # TODO:
-    def __init__(self, *args, **kwargs):
-        pass
-    # TODO:
-    def addCatgeory(self,name,quantity,MTTF):
-        pass
-    # TODO:
-    def addAdjuster(self,expertise):
-        _id = FileHandler.writeToFile("adjuster",dict(expertise))
-        return _id # id
-    
-
-class EditHandler():
-    # TODO:
-    def __init__(self, *args, **kwargs):
-        pass
-    # TODO:
-    def updateCategory(self,qunatity,MTTF):
-        pass
-    # TODO:
-    def updateAdjuster(self,option,expertise):
-        pass
-    # TODO:
-    def deleteCategory(self,name):
-        pass
-
-    # TODO:
-    def deleteAdjuster(self,id):
-        pass

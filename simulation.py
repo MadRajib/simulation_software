@@ -2,6 +2,7 @@ import classes as Manager
 
 if __name__ == "__main__":
     inputHandler = Manager.UserInputHandler()
+    addHandler = Manager.AddHandler()
     while True:
         userInput = inputHandler.getUserInput()
         parseInput = inputHandler.processCommand(userInput)
@@ -10,8 +11,9 @@ if __name__ == "__main__":
             Manager.printHelp()
         # TODO:
         elif parseInput["command"] =="add":
-            pass
-        # TODO:
+            print(parseInput['rest'])
+            ret = addHandler.addAdjuster(parseInput['rest'])
+            print(ret)
         elif parseInput["command"] =="update":
             pass
         # TODO:

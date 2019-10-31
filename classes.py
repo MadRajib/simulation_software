@@ -1,6 +1,5 @@
 import re
-from tinydb import TinyDB, Query
-from tinydb.operations import set as sett,add as addd
+from tinydb import TinyDB, Query ,where
 
 _ADJ = 0
 _MCH = 1
@@ -73,6 +72,7 @@ class UserInputHandler():
             "show_result":"\s*\d+\s*"
         }
     def getUserInput(self,):
+        print()
         inp = input("Please Enter Commands\n")
         line = inp.strip()
         return line #string
@@ -97,16 +97,18 @@ class UserInputHandler():
         # If 1st argument is invalid then print error
         if _1stArg not in self.__validCommands:
             print("Error: Invalid Command! - > ",_1stArg)
+            print()
             return data
 
 
         data['command'] = _1stArg
-        print(restArg)
+        # print(restArg)
         if restArg !=";":
             _2ndArg,restArg = restArg.strip().split(" ",1)
             
             if _2ndArg not in self.__validOptions:
                 print("Error: Invalid Option! - > ",_2ndArg)
+                print()
                 return data
             data['option'] = _2ndArg
         
@@ -121,6 +123,7 @@ class UserInputHandler():
                 p = re.compile(self.__validateRegex['ad_add'])
                 if p.match(restArg) == None:
                     print("Error: Invalid Arguments! - > ")
+                    print()
                     return data
                 else:
                     temp = restArg.strip().split()
@@ -130,6 +133,7 @@ class UserInputHandler():
                 p = re.compile(self.__validateRegex['mc_add'])
                 if p.match(restArg) == None:
                     print("Error: Invalid Arguments! - > ")
+                    print()
                     return data
                 else:
                     temp = restArg.strip().split()
@@ -145,6 +149,7 @@ class UserInputHandler():
                 p = re.compile(self.__validateRegex['ad_update'])
                 if p.match(restArg) == None:
                     print("Error: Invalid Arguments! - > ")
+                    print()
                     return data
                 else:
                     temp = restArg.strip().split()
@@ -153,7 +158,8 @@ class UserInputHandler():
             else:
                 p = re.compile(self.__validateRegex['mc_update'])
                 if p.match(restArg) == None:
-                    print("Error: Invalid Arguments! - > ")
+                    print("Error: Invalid Arguments! - > \n")
+                    print()
                     return data
                 else:
                     temp = restArg.strip().split()
@@ -168,6 +174,7 @@ class UserInputHandler():
                 p = re.compile(self.__validateRegex['ad_del'])
                 if p.match(restArg) == None:
                     print("Error: Invalid Arguments! - > ")
+                    print()
                     return data
                 else:
                     temp = restArg.strip().split()
@@ -176,6 +183,7 @@ class UserInputHandler():
                 p = re.compile(self.__validateRegex['mc_del'])
                 if p.match(restArg) == None:
                     print("Error: Invalid Arguments! - > ")
+                    print()
                     return data
                 else:
                     temp = restArg.strip().split()
@@ -188,6 +196,7 @@ class UserInputHandler():
             p = re.compile(self.__validateRegex['show_result'])
             if p.match(restArg) == None:
                 print("Error: Invalid Arguments! - > ")
+                print()
                 return data
             else:
                 temp = restArg.strip().split()
@@ -227,7 +236,7 @@ class AddHandler():
 
         search_result = FileHandler().searchCategory(name)
         if len(search_result)!=0 and float(search_result[0]["MTTF"])==float(MTTF):
-            print("found ",search_result)
+            # print("found ",search_result)
             data["quantity"] = data["quantity"] + int(search_result[0]["quantity"])
             _id = FileHandler().updateCategory(search_result[0].doc_id,data["name"],data["quantity"],data["MTTF"])
         else:
@@ -244,25 +253,36 @@ class AddHandler():
     
 
 class EditHandler():
-    # TODO:
+
     def __init__(self, *args, **kwargs):
         pass
-    # TODO:
+
     def updateCategory(self,name,new_name,quantity,MTTF):
         search_result = FileHandler().searchCategory(name)
         if not search_result:
             print("Sorry the Entry Doesnt Exits!")
+            print()
             return -1
         return FileHandler().updateCategoryFile(search_result[0].doc_id,new_name,int(quantity),float(MTTF))
         
     def updateAdjuster(self,option,id,expertise):
         FileHandler().updateAdjusterFile("",id,expertise)
-    def deleteCategory(self,name):
-        pass
 
-    # TODO:
+    def deleteCategory(self,name):
+        search_result = FileHandler().searchCategory(name)
+        if not search_result:
+            print("Sorry the Entry Doesnt Exits!")
+            print()
+            return -1
+        return FileHandler().deleteRow(_MCH,name)
+
     def deleteAdjuster(self,id):
-        pass
+        search_result = FileHandler().searchAdjuster(id)
+        if not search_result:
+            print("Sorry the Entry Doesnt Exits!")
+            print()
+            return -1
+        return FileHandler().deleteRow(_ADJ,search_result[0].doc_id)
 
 
 class FileHandler():
@@ -300,21 +320,25 @@ class FileHandler():
         self.adDB.purge_tables()
         self.mcDB.purge_tables()
         self.utDB.purge_tables()
-
+    
+    def deleteRow(self,store,id):
+        if store == _ADJ :
+            self.adDB.remove(where('ident')==id)
+        elif store == _MCH:
+            self.mcDB.remove(where('name')==id)
+            
     
     def searchAdjuster(self,id):
         adjuster = Query()
-        data = self.adDB.search(adjuster.ident == id)
+        data = self.adDB.search(adjuster.ident == int(id))
         return data #STRING
 
     def searchCategory(self,name):
         category = Query()
         data = self.mcDB.search(category.name == name)
         return data
-     # TODO:
 
     def updateCategoryFile(self,id,new_name,quantity,MTTF):
-        print("asdasdasd")
         category = Query()
         sucess = self.mcDB.update({"name": new_name, "quantity": int(quantity), "MTTF": float(MTTF)},doc_ids=[id] )
         return sucess #int
@@ -329,5 +353,10 @@ class FileHandler():
 
 
 if __name__ == "__main__":
-    # print(FileHandler().searchAdjuster(2))
-    AddHandler().addCatgeory("name","2","0.1")
+
+    # Unit test
+    # InputHandler
+    # AddHandler
+    # editHandler
+    # FileHandler
+    # Simulate

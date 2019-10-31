@@ -1,6 +1,14 @@
 import re
 from tinydb import TinyDB, Query
+from tinydb.operations import set as sett,add as addd
 
+_ADJ = 0
+_MCH = 1
+_UTL = 2
+
+ADJ = ("ad")
+MCH = ("mc")
+RSLT = ("results")
 
 def printHelp():
     helpString = '''
@@ -206,19 +214,32 @@ class Simulate():
 
 
 class AddHandler():
-    # TODO:
+    
     def __init__(self, *args, **kwargs):
         pass
-    # TODO:
-    def addCatgeory(self,name,quantity,MTTF):
-        pass
-    # TODO:
+    
+    def addCatgeory(self,name,quantity=0,MTTF=0):
+        data = {
+            "name":name,
+            "quantity":int(quantity),
+            "MTTF":float(MTTF),
+        }
+
+        search_result = FileHandler().searchCategory(name)
+        if len(search_result)!=0 and float(search_result[0]["MTTF"])==float(MTTF):
+            print("found ",search_result)
+            data["quantity"] = data["quantity"] + int(search_result[0]["quantity"])
+            _id = FileHandler().updateCategory(search_result[0].doc_id,data["name"],data["quantity"],data["MTTF"])
+        else:
+            _id = FileHandler().writeToFile(_MCH,data)
+        return _id
+    
     def addAdjuster(self,expertise):
         data = {
-            "id":"",
+            "ident":"",
             "expertise":expertise
         }
-        _id = FileHandler().writeToFile("adjuster",data)
+        _id = FileHandler().writeToFile(_ADJ,data)
         return _id # id
     
 
@@ -227,12 +248,15 @@ class EditHandler():
     def __init__(self, *args, **kwargs):
         pass
     # TODO:
-    def updateCategory(self,qunatity,MTTF):
-        pass
-    # TODO:
-    def updateAdjuster(self,option,expertise):
-        pass
-    # TODO:
+    def updateCategory(self,name,new_name,quantity,MTTF):
+        search_result = FileHandler().searchCategory(name)
+        if not search_result:
+            print("Sorry the Entry Doesnt Exits!")
+            return -1
+        return FileHandler().updateCategoryFile(search_result[0].doc_id,new_name,int(quantity),float(MTTF))
+        
+    def updateAdjuster(self,option,id,expertise):
+        FileHandler().updateAdjusterFile("",id,expertise)
     def deleteCategory(self,name):
         pass
 
@@ -249,37 +273,51 @@ class FileHandler():
     __adjusterFilePath = "./data/adjuster.json"
     
     __utilizationFilePath ="./data/simulationResult.json"
-    # TODO:
+    
+
+
     def __init__(self, *args, **kwargs):
-        pass
+        self.mcDB = TinyDB(self.__machineryFilePath)
+        self.adDB = TinyDB(self.__adjusterFilePath)
+        self.utDB = TinyDB(self.__utilizationFilePath)
+    
     # TODO:
     def readFromFile(self, name):
         data = ""
         return data # string
     
     def writeToFile(self,name,data):
-        url = None
-        if name == "adjuster":
-            url = self.__adjusterFilePath
-        db = TinyDB(url)
-        success = db.insert(data)
+        if name == _ADJ:
+            success =  self.adDB.insert(data)
+            adjuster = Query()
+            self.adDB.update({'ident':success}, doc_ids=[success] )
+        elif name == _MCH:
+            success =  self.mcDB.insert(data)
         return success #int
-    
-    # TODO:
+
     def deleteAll(self):
-        pass
-    # TODO:
+        
+        self.adDB.purge_tables()
+        self.mcDB.purge_tables()
+        self.utDB.purge_tables()
+
+    
     def searchAdjuster(self,id):
-        data = ""
+        adjuster = Query()
+        data = self.adDB.search(adjuster.ident == id)
         return data #STRING
-    # TODO:
+
     def searchCategory(self,name):
-        data =""
-        return data #stirng
+        category = Query()
+        data = self.mcDB.search(category.name == name)
+        return data
      # TODO:
-    def updateCategoryFile(self,option,name,qunatity,MTTF):
-         sucess = ""
-         return sucess #int
+
+    def updateCategoryFile(self,id,new_name,quantity,MTTF):
+        print("asdasdasd")
+        category = Query()
+        sucess = self.mcDB.update({"name": new_name, "quantity": int(quantity), "MTTF": float(MTTF)},doc_ids=[id] )
+        return sucess #int
     # TODO:
     def updateAdjusterFile(self,option,name,qunatity,MTTF):
          sucess = ""
@@ -288,3 +326,8 @@ class FileHandler():
     def updateUtilization(self,option,list):
         success= ""
         return success  #int
+
+
+if __name__ == "__main__":
+    # print(FileHandler().searchAdjuster(2))
+    AddHandler().addCatgeory("name","2","0.1")

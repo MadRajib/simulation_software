@@ -1,1 +1,1 @@
-{}
+{"_default": {"1": {"name": "mach1", "quantity": 10, "MTTF": 120.0}, "2": {"name": "new_name", "quantity": 10, "MTTF": 260.0}}}

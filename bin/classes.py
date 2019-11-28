@@ -1,5 +1,6 @@
 import re
 from tinydb import TinyDB, Query ,where
+import os
 
 _ADJ = 0
 _MCH = 1
@@ -20,7 +21,7 @@ Help :
     add ad <expertise machine>
 
 * Update Categories details in the system :
-    update mc < Category name, name=new name, quantity=new value, MTTF =new value >
+    update mc < Category name, new name,new value, new value >
 
 * Delete categories from the system :
     
@@ -58,6 +59,7 @@ class UserInputHandler():
                                  "del",
                                  "reset",
                                  "show",
+                                 "exit",
                                  "simulate",
                                 )
         self.__validOptions = ("ad","mc","results")
@@ -71,18 +73,17 @@ class UserInputHandler():
             "mc_del":"\s*\w+\s*",
             "show_result":"\s*\d+\s*"
         }
-    def getUserInput(self,):
+    def getUserInput(self):
         print()
         inp = input("Please Enter Commands\n")
         line = inp.strip()
         return line #string
    
-    def processCommand(self,line):
+    def processCommand(self,line):        
         line += " ;"
         _1stArg , restArg = line.split(" ",1)
         
         restArg.strip()                       # Filter out the white spaces
-
         data = {
             'command':None,
             'option' : None,
@@ -206,18 +207,34 @@ class UserInputHandler():
 
 
 class Simulate():
-    # TODO:
+    
     def __init__(self, *args, **kwargs):
         pass
+        
     # TODO:
     def calculateUtilization(self):
-        data = ""
-        return data #float list
+        datas = FileHandler().readAll()
+        # print(self.datas)
+        uti = {
+            'mch':dict(),
+            'adj':[],
+        }
+
+        machineries =  datas['mch']
+        adjusters = datas['adj']
+        TotalTime = 500;
+        serviceTime = 10;
+        for m in machineries:
+            uti['mch'][m['name']] = int(m['quantity'])*TotalTime*(1- serviceTime/float(m['MTTF']))
+        
+        # for m in machineries:
+        #     uti['mch'].append( int(m['quantity'])*TotalTime*(1- serviceTime/float(m['MTTF'])) )
+            # print(uti)
+
+        return uti #float list
     # TODO:
     def save(self):
         pass
-
-
 
 
 
@@ -233,7 +250,7 @@ class AddHandler():
             "quantity":int(quantity),
             "MTTF":float(MTTF),
         }
-
+        _id = -1
         search_result = FileHandler().searchCategory(name)
         if len(search_result)!=0 and float(search_result[0]["MTTF"])==float(MTTF):
             # print("found ",search_result)
@@ -244,6 +261,7 @@ class AddHandler():
         return _id
     
     def addAdjuster(self,expertise):
+        _id = -1
         data = {
             "ident":"",
             "expertise":expertise
@@ -266,8 +284,8 @@ class EditHandler():
         return FileHandler().updateCategoryFile(search_result[0].doc_id,new_name,int(quantity),float(MTTF))
         
     def updateAdjuster(self,option,id,expertise):
-        FileHandler().updateAdjusterFile("",id,expertise)
-
+        # FileHandler().updateAdjusterFile("",id,expertise)
+        return 1
     def deleteCategory(self,name):
         search_result = FileHandler().searchCategory(name)
         if not search_result:
@@ -288,11 +306,11 @@ class EditHandler():
 class FileHandler():
     # Private variables
     
-    __machineryFilePath = "./data/machinery.json"
+    __machineryFilePath = os.path.abspath("/home/madrajib/Desktop/simulation_software/data/machinery.json")
     
-    __adjusterFilePath = "./data/adjuster.json"
+    __adjusterFilePath = os.path.abspath("/home/madrajib/Desktop/simulation_software/data/adjuster.json")
     
-    __utilizationFilePath ="./data/simulationResult.json"
+    __utilizationFilePath =os.path.abspath("/home/madrajib/Desktop/simulation_software/data/simulationResult.json")
     
 
 
@@ -301,9 +319,19 @@ class FileHandler():
         self.adDB = TinyDB(self.__adjusterFilePath)
         self.utDB = TinyDB(self.__utilizationFilePath)
     
+    def close_db(self):
+        self.mcDB.close()
+        self.adDB.close()
+        self.utDB.close()
+    
     # TODO:
-    def readFromFile(self, name):
-        data = ""
+    def readAll(self):
+        data = {
+            "adj":None,
+            "mch":None,
+        }
+        data["adj"] = self.adDB.all()
+        data["mch"] = self.mcDB.all()
         return data # string
     
     def writeToFile(self,name,data):
@@ -320,7 +348,7 @@ class FileHandler():
         self.adDB.purge_tables()
         self.mcDB.purge_tables()
         self.utDB.purge_tables()
-    
+        
     def deleteRow(self,store,id):
         if store == _ADJ :
             self.adDB.remove(where('ident')==id)
@@ -353,6 +381,7 @@ class FileHandler():
 
 
 if __name__ == "__main__":
+    
 
     # Unit test
     # InputHandler
@@ -360,3 +389,4 @@ if __name__ == "__main__":
     # editHandler
     # FileHandler
     # Simulate
+    pass

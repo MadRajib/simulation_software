@@ -1,9 +1,15 @@
+#!/usr/bin/env python3
+print("Welcome To Machinery Simulation!")
+print("Loading Modules...")
 import classes as Manager
+import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
     inputHandler = Manager.UserInputHandler()
     addHandler = Manager.AddHandler()
     editHandler = Manager.EditHandler()
+    simulate = Manager.Simulate()
+    
 
     while True:
         userInput = inputHandler.getUserInput()
@@ -16,16 +22,21 @@ if __name__ == "__main__":
             if parseInput["option"] == Manager.ADJ:
                 # print(parseInput['rest'])
                 ret = addHandler.addAdjuster(parseInput['rest'])
+                
                 print("Adjuster Added, success_code(id):",ret)
             elif parseInput["option"] == Manager.MCH:
                 # print(parseInput['rest'])
-                ret = addHandler.addCatgeory(*parseInput['rest'])
+                try:
+                    ret = addHandler.addCatgeory(*parseInput['rest'])
+                except expression as identifier:
+                    pass
+                # ret = addHandler.addCatgeory(*parseInput['rest'])
                 print("Category Added, success_code",ret) 
         
         elif parseInput["command"] =="update":
         
             if parseInput["option"] == Manager.ADJ and parseInput['rest'] is not None:
-                # print(parseInput['rest'])
+                print(parseInput['rest'])
                 ret = editHandler.updateAdjuster(parseInput['rest'])
                 print("Adjuster Updated, success_code(id):",ret)
             elif parseInput["option"] == Manager.MCH and parseInput['rest'] is not None:
@@ -44,13 +55,25 @@ if __name__ == "__main__":
         
         elif parseInput["command"] =="reset":
             Manager.FileHandler().deleteAll()
-        # TODO:
+            
         elif parseInput["command"] =="simulate":
-            pass
+            datas = simulate.calculateUtilization()
+            machUtil = datas['mch']
+            names = list(machUtil.keys())
+            values = list(machUtil.values())
+            
+            plt.bar(names, values)
+            plt.suptitle('Machine Utilization : 500hs') 
+            plt.show()
+
         # TODO:
         elif parseInput["command"] =="show":
-            pass
+            
+            fileHandler = Manager.FileHandler()
+            data = fileHandler.readAll()
+            print(data)        
         # TODO:
-        else:
+        elif parseInput["command"] =="exit":
+            break;
             pass
         

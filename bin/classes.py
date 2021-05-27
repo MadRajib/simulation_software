@@ -306,11 +306,11 @@ class EditHandler():
 class FileHandler():
     # Private variables
     
-    __machineryFilePath = os.path.abspath("/home/madrajib/Desktop/simulation_software/data/machinery.json")
+    __machineryFilePath = os.path.abspath("./data/machinery.json")
     
-    __adjusterFilePath = os.path.abspath("/home/madrajib/Desktop/simulation_software/data/adjuster.json")
+    __adjusterFilePath = os.path.abspath("./data/adjuster.json")
     
-    __utilizationFilePath =os.path.abspath("/home/madrajib/Desktop/simulation_software/data/simulationResult.json")
+    __utilizationFilePath =os.path.abspath("./data/simulationResult.json")
     
 
 
